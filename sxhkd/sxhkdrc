@@ -1,0 +1,33 @@
+super + a
+    alacritty
+
+super + f
+    rofi -show drun
+
+super + BackSpace
+    bspc node -c
+super + Tab
+    bspc node -f next
+super + shift + Tab
+    bspc node -f prev
+
+super + {1,2,3,4,5,6,7}
+    bspc desktop --focus ^{1,2,3,4,5,6,7}
+
+super + shift + {1,2,3,4,5,6,7}
+    bspc node --to-desktop ^{1,2,3,4,5,6,7}
+
+super + Escape
+    pkill -u $USER X
+
+Print
+    flameshot gui
+
+XF86AudioMute
+    pamixer --toggle-mute
+
+XF86AudioLowerVolume
+    pamixer --decrease 2
+
+XF86AudioRaiseVolume
+    pamixer --increase 2
