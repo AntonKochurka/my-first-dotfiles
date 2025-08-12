@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+category=$(echo -e "WiFi\nBluetooth" | rofi -dmenu -p "Select:" -theme-str 'window {width: 20%;}')
+
+[ -z "$category" ] && exit
+
+if [ "$category" = "WiFi" ]; then
+  wifi_list=$(nmcli -t -f SSID,SECURITY,SIGNAL device wifi list | \
+    awk -F: '!seen[$1]++ {lock=($2 ? "🔒" : "🔓"); printf "%s\t%s\t%s%%\n", $1, lock, $3}')
+  ssid=$(echo -e "$wifi_list" | rofi -dmenu -i -p "WiFi Networks" -theme-str 'window {width: 40%;}')
+  [ -z "$ssid" ] && exit
+  ssid_name=$(echo "$ssid" | cut -f1)
+  if echo "$ssid" | grep -q "🔒"; then
+    pass=$(rofi -dmenu -password -p "Password for $ssid_name")
+    nmcli device wifi connect "$ssid_name" password "$pass"
+  else
+    nmcli device wifi connect "$ssid_name"
+  fi
+
+elif [ "$category" = "Bluetooth" ]; then
+  bt_list=$(bluetoothctl devices Paired | awk '{print $2 "\t" substr($0, index($0,$3))}')
+  mac=$(echo -e "$bt_list" | rofi -dmenu -i -p "Bluetooth Devices" -theme-str 'window {width: 40%;}' | cut -f1)
+  [ -z "$mac" ] && exit
+  status=$(bluetoothctl info "$mac" | grep "Connected" | awk '{print $2}')
+  if [ "$status" = "yes" ]; then
+    bluetoothctl disconnect "$mac"
+  else
+    bluetoothctl connect "$mac"
+  fi
+fi
